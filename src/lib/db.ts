@@ -2,7 +2,6 @@
 
 import { AdminConfig } from './admin.types';
 import { KvrocksStorage } from './kvrocks.db';
-import { SqliteStorage } from './sqlite.db';
 import { RedisStorage } from './redis.db';
 import {
   ContentStat,
@@ -28,7 +27,7 @@ const STORAGE_TYPE =
     | undefined) || 'localstorage';
 
 // 创建存储实例
-function createStorage(): IStorage {
+async function createStorage(): Promise<IStorage> {
   switch (STORAGE_TYPE) {
     case 'redis':
       return new RedisStorage();
@@ -36,8 +35,10 @@ function createStorage(): IStorage {
       return new UpstashRedisStorage();
     case 'kvrocks':
       return new KvrocksStorage();
-    case 'sqlite':
+    case 'sqlite': {
+      const { SqliteStorage } = await import('./sqlite.db');
       return new SqliteStorage();
+    }
     case 'localstorage':
     default:
       return null as unknown as IStorage;
@@ -47,9 +48,9 @@ function createStorage(): IStorage {
 // 单例存储实例
 let storageInstance: IStorage | null = null;
 
-function getStorage(): IStorage {
+async function getStorage(): Promise<IStorage> {
   if (!storageInstance) {
-    storageInstance = createStorage();
+    storageInstance = await createStorage();
   }
   return storageInstance;
 }
@@ -61,20 +62,22 @@ export function generateStorageKey(source: string, id: string): string {
 
 // 导出便捷方法
 export class DbManager {
-  private storage: IStorage;
+  private storage: IStorage | null = null;
 
-  constructor() {
-    this.storage = getStorage();
-    // 启动时自动触发数据迁移（异步，不阻塞构造）
-    if (this.storage && typeof (this.storage as any).migrateData === 'function') {
-      (this.storage as any).migrateData().then(async () => {
-        if (typeof (this.storage as any).migratePasswords === 'function') {
-          await (this.storage as any).migratePasswords();
-        }
-      }).catch((err: any) => {
-        console.error('数据迁移异常:', err);
-      });
+  private async ensureStorage(): Promise<IStorage> {
+    if (!this.storage) {
+      this.storage = await getStorage();
+      if (this.storage && typeof (this.storage as any).migrateData === 'function') {
+        (this.storage as any).migrateData().then(async () => {
+          if (typeof (this.storage as any).migratePasswords === 'function') {
+            await (this.storage as any).migratePasswords();
+          }
+        }).catch((err: any) => {
+          console.error('数据迁移异常:', err);
+        });
+      }
     }
+    return this.storage;
   }
 
   // 播放记录相关方法
@@ -83,9 +86,10 @@ export class DbManager {
     source: string,
     id: string
   ): Promise<PlayRecord | null> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
     const key = generateStorageKey(source, id);
-    return this.storage.getPlayRecord(userName, key);
+    return storage.getPlayRecord(userName, key);
   }
 
   async savePlayRecord(
@@ -94,16 +98,18 @@ export class DbManager {
     id: string,
     record: PlayRecord
   ): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
     const key = generateStorageKey(source, id);
-    await this.storage.setPlayRecord(userName, key, record);
+    await storage.setPlayRecord(userName, key, record);
   }
 
   async getAllPlayRecords(userName: string): Promise<{
     [key: string]: PlayRecord;
   }> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    return this.storage.getAllPlayRecords(userName);
+    return storage.getAllPlayRecords(userName);
   }
 
   async deletePlayRecord(
@@ -111,9 +117,10 @@ export class DbManager {
     source: string,
     id: string
   ): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
     const key = generateStorageKey(source, id);
-    await this.storage.deletePlayRecord(userName, key);
+    await storage.deletePlayRecord(userName, key);
   }
 
   // 🚀 批量保存播放记录（Upstash 优化，使用 mset 只算1条命令）
@@ -123,15 +130,16 @@ export class DbManager {
   ): Promise<void> {
     if (records.length === 0) return;
 
+    const storage = await this.ensureStorage();
     // 检查 storage 是否支持批量操作
-    if (typeof this.storage.setPlayRecordsBatch === 'function') {
+    if (typeof storage.setPlayRecordsBatch === 'function') {
       incrementDbQuery();
       const batchData: { [key: string]: PlayRecord } = {};
       for (const { source, id, record } of records) {
         const key = generateStorageKey(source, id);
         batchData[key] = record;
       }
-      await this.storage.setPlayRecordsBatch(userName, batchData);
+      await storage.setPlayRecordsBatch(userName, batchData);
     } else {
       // 回退：逐条保存
       for (const { source, id, record } of records) {
@@ -146,9 +154,10 @@ export class DbManager {
     source: string,
     id: string
   ): Promise<Favorite | null> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
     const key = generateStorageKey(source, id);
-    return this.storage.getFavorite(userName, key);
+    return storage.getFavorite(userName, key);
   }
 
   async saveFavorite(
@@ -157,16 +166,18 @@ export class DbManager {
     id: string,
     favorite: Favorite
   ): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
     const key = generateStorageKey(source, id);
-    await this.storage.setFavorite(userName, key, favorite);
+    await storage.setFavorite(userName, key, favorite);
   }
 
   async getAllFavorites(
     userName: string
   ): Promise<{ [key: string]: Favorite }> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    return this.storage.getAllFavorites(userName);
+    return storage.getAllFavorites(userName);
   }
 
   async deleteFavorite(
@@ -174,9 +185,10 @@ export class DbManager {
     source: string,
     id: string
   ): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
     const key = generateStorageKey(source, id);
-    await this.storage.deleteFavorite(userName, key);
+    await storage.deleteFavorite(userName, key);
   }
 
   // ==================== 提醒相关方法 ====================
@@ -186,9 +198,10 @@ export class DbManager {
     source: string,
     id: string
   ): Promise<Reminder | null> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
     const key = generateStorageKey(source, id);
-    return this.storage.getReminder(userName, key);
+    return storage.getReminder(userName, key);
   }
 
   async saveReminder(
@@ -197,16 +210,18 @@ export class DbManager {
     id: string,
     reminder: Reminder
   ): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
     const key = generateStorageKey(source, id);
-    await this.storage.setReminder(userName, key, reminder);
+    await storage.setReminder(userName, key, reminder);
   }
 
   async getAllReminders(
     userName: string
   ): Promise<{ [key: string]: Reminder }> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    return this.storage.getAllReminders(userName);
+    return storage.getAllReminders(userName);
   }
 
   async deleteReminder(
@@ -214,9 +229,10 @@ export class DbManager {
     source: string,
     id: string
   ): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
     const key = generateStorageKey(source, id);
-    await this.storage.deleteReminder(userName, key);
+    await storage.deleteReminder(userName, key);
   }
 
   // 🚀 批量保存收藏（Upstash 优化，使用 mset 只算1条命令）
@@ -226,15 +242,16 @@ export class DbManager {
   ): Promise<void> {
     if (favorites.length === 0) return;
 
+    const storage = await this.ensureStorage();
     // 检查 storage 是否支持批量操作
-    if (typeof this.storage.setFavoritesBatch === 'function') {
+    if (typeof storage.setFavoritesBatch === 'function') {
       incrementDbQuery();
       const batchData: { [key: string]: Favorite } = {};
       for (const { source, id, favorite } of favorites) {
         const key = generateStorageKey(source, id);
         batchData[key] = favorite;
       }
-      await this.storage.setFavoritesBatch(userName, batchData);
+      await storage.setFavoritesBatch(userName, batchData);
     } else {
       // 回退：逐条保存
       for (const { source, id, favorite } of favorites) {
@@ -255,29 +272,34 @@ export class DbManager {
 
   // ---------- 用户相关 ----------
   async registerUser(userName: string, password: string): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    await this.storage.registerUser(userName, password);
+    await storage.registerUser(userName, password);
   }
 
   async verifyUser(userName: string, password: string): Promise<boolean> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    return this.storage.verifyUser(userName, password);
+    return storage.verifyUser(userName, password);
   }
 
   // 检查用户是否已存在
   async checkUserExist(userName: string): Promise<boolean> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    return this.storage.checkUserExist(userName);
+    return storage.checkUserExist(userName);
   }
 
   async changePassword(userName: string, newPassword: string): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    await this.storage.changePassword(userName, newPassword);
+    await storage.changePassword(userName, newPassword);
   }
 
   async deleteUser(userName: string): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    await this.storage.deleteUser(userName);
+    await storage.deleteUser(userName);
   }
 
   // ---------- 用户相关（新版本 V2，支持 OIDC） ----------
@@ -289,32 +311,36 @@ export class DbManager {
     oidcSub?: string,
     enabledApis?: string[]
   ): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).createUserV2 === 'function') {
-      await (this.storage as any).createUserV2(userName, password, role, tags, oidcSub, enabledApis);
+    if (typeof (storage as any).createUserV2 === 'function') {
+      await (storage as any).createUserV2(userName, password, role, tags, oidcSub, enabledApis);
     }
   }
 
   async verifyUserV2(userName: string, password: string): Promise<boolean> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).verifyUserV2 === 'function') {
-      return (this.storage as any).verifyUserV2(userName, password);
+    if (typeof (storage as any).verifyUserV2 === 'function') {
+      return (storage as any).verifyUserV2(userName, password);
     }
     return false;
   }
 
   async checkUserExistV2(userName: string): Promise<boolean> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).checkUserExistV2 === 'function') {
-      return (this.storage as any).checkUserExistV2(userName);
+    if (typeof (storage as any).checkUserExistV2 === 'function') {
+      return (storage as any).checkUserExistV2(userName);
     }
     return false;
   }
 
   async getUserByOidcSub(oidcSub: string): Promise<string | null> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).getUserByOidcSub === 'function') {
-      return (this.storage as any).getUserByOidcSub(oidcSub);
+    if (typeof (storage as any).getUserByOidcSub === 'function') {
+      return (storage as any).getUserByOidcSub(oidcSub);
     }
     return null;
   }
@@ -328,51 +354,58 @@ export class DbManager {
     createdAt?: number;
     oidcSub?: string;
   } | null> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).getUserInfoV2 === 'function') {
-      return (this.storage as any).getUserInfoV2(userName);
+    if (typeof (storage as any).getUserInfoV2 === 'function') {
+      return (storage as any).getUserInfoV2(userName);
     }
     return null;
   }
 
   // ---------- 搜索历史 ----------
   async getSearchHistory(userName: string): Promise<string[]> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    return this.storage.getSearchHistory(userName);
+    return storage.getSearchHistory(userName);
   }
 
   async addSearchHistory(userName: string, keyword: string): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    await this.storage.addSearchHistory(userName, keyword);
+    await storage.addSearchHistory(userName, keyword);
   }
 
   async deleteSearchHistory(userName: string, keyword?: string): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    await this.storage.deleteSearchHistory(userName, keyword);
+    await storage.deleteSearchHistory(userName, keyword);
   }
 
   // 获取全部用户名
   async getAllUsers(): Promise<string[]> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).getAllUsers === 'function') {
-      return (this.storage as any).getAllUsers();
+    if (typeof (storage as any).getAllUsers === 'function') {
+      return (storage as any).getAllUsers();
     }
     return [];
   }
 
   // ---------- 管理员配置 ----------
   async getAdminConfig(): Promise<AdminConfig | null> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).getAdminConfig === 'function') {
-      return (this.storage as any).getAdminConfig();
+    if (typeof (storage as any).getAdminConfig === 'function') {
+      return (storage as any).getAdminConfig();
     }
     return null;
   }
 
   async saveAdminConfig(config: AdminConfig): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).setAdminConfig === 'function') {
-      await (this.storage as any).setAdminConfig(config);
+    if (typeof (storage as any).setAdminConfig === 'function') {
+      await (storage as any).setAdminConfig(config);
     }
   }
 
@@ -382,9 +415,10 @@ export class DbManager {
     source: string,
     id: string
   ): Promise<EpisodeSkipConfig | null> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).getSkipConfig === 'function') {
-      return (this.storage as any).getSkipConfig(userName, source, id);
+    if (typeof (storage as any).getSkipConfig === 'function') {
+      return (storage as any).getSkipConfig(userName, source, id);
     }
     return null;
   }
@@ -395,9 +429,10 @@ export class DbManager {
     id: string,
     config: EpisodeSkipConfig
   ): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).setSkipConfig === 'function') {
-      await (this.storage as any).setSkipConfig(userName, source, id, config);
+    if (typeof (storage as any).setSkipConfig === 'function') {
+      await (storage as any).setSkipConfig(userName, source, id, config);
     }
   }
 
@@ -406,18 +441,20 @@ export class DbManager {
     source: string,
     id: string
   ): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).deleteSkipConfig === 'function') {
-      await (this.storage as any).deleteSkipConfig(userName, source, id);
+    if (typeof (storage as any).deleteSkipConfig === 'function') {
+      await (storage as any).deleteSkipConfig(userName, source, id);
     }
   }
 
   async getAllSkipConfigs(
     userName: string
   ): Promise<{ [key: string]: EpisodeSkipConfig }> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).getAllSkipConfigs === 'function') {
-      return (this.storage as any).getAllSkipConfigs(userName);
+    if (typeof (storage as any).getAllSkipConfigs === 'function') {
+      return (storage as any).getAllSkipConfigs(userName);
     }
     return {};
   }
@@ -428,9 +465,10 @@ export class DbManager {
     source: string,
     id: string
   ): Promise<EpisodeSkipConfig | null> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).getEpisodeSkipConfig === 'function') {
-      return (this.storage as any).getEpisodeSkipConfig(userName, source, id);
+    if (typeof (storage as any).getEpisodeSkipConfig === 'function') {
+      return (storage as any).getEpisodeSkipConfig(userName, source, id);
     }
     return null;
   }
@@ -441,9 +479,10 @@ export class DbManager {
     id: string,
     config: EpisodeSkipConfig
   ): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).saveEpisodeSkipConfig === 'function') {
-      await (this.storage as any).saveEpisodeSkipConfig(userName, source, id, config);
+    if (typeof (storage as any).saveEpisodeSkipConfig === 'function') {
+      await (storage as any).saveEpisodeSkipConfig(userName, source, id, config);
     }
   }
 
@@ -452,27 +491,30 @@ export class DbManager {
     source: string,
     id: string
   ): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).deleteEpisodeSkipConfig === 'function') {
-      await (this.storage as any).deleteEpisodeSkipConfig(userName, source, id);
+    if (typeof (storage as any).deleteEpisodeSkipConfig === 'function') {
+      await (storage as any).deleteEpisodeSkipConfig(userName, source, id);
     }
   }
 
   async getAllEpisodeSkipConfigs(
     userName: string
   ): Promise<{ [key: string]: EpisodeSkipConfig }> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).getAllEpisodeSkipConfigs === 'function') {
-      return (this.storage as any).getAllEpisodeSkipConfigs(userName);
+    if (typeof (storage as any).getAllEpisodeSkipConfigs === 'function') {
+      return (storage as any).getAllEpisodeSkipConfigs(userName);
     }
     return {};
   }
 
   // ---------- 数据清理 ----------
   async clearAllData(): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).clearAllData === 'function') {
-      await (this.storage as any).clearAllData();
+    if (typeof (storage as any).clearAllData === 'function') {
+      await (storage as any).clearAllData();
     } else {
       throw new Error('存储类型不支持清空数据操作');
     }
@@ -480,39 +522,44 @@ export class DbManager {
 
   // ---------- 通用缓存方法 ----------
   async getCache(key: string): Promise<any | null> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof this.storage.getCache === 'function') {
-      return await this.storage.getCache(key);
+    if (typeof storage.getCache === 'function') {
+      return await storage.getCache(key);
     }
     return null;
   }
 
   async setCache(key: string, data: any, expireSeconds?: number): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof this.storage.setCache === 'function') {
-      await this.storage.setCache(key, data, expireSeconds);
+    if (typeof storage.setCache === 'function') {
+      await storage.setCache(key, data, expireSeconds);
     }
   }
 
   async deleteCache(key: string): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof this.storage.deleteCache === 'function') {
-      await this.storage.deleteCache(key);
+    if (typeof storage.deleteCache === 'function') {
+      await storage.deleteCache(key);
     }
   }
 
   async clearExpiredCache(prefix?: string): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof this.storage.clearExpiredCache === 'function') {
-      await this.storage.clearExpiredCache(prefix);
+    if (typeof storage.clearExpiredCache === 'function') {
+      await storage.clearExpiredCache(prefix);
     }
   }
 
   // ---------- 播放统计相关 ----------
   async getPlayStats(): Promise<PlayStatsResult> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).getPlayStats === 'function') {
-      return (this.storage as any).getPlayStats();
+    if (typeof (storage as any).getPlayStats === 'function') {
+      return (storage as any).getPlayStats();
     }
 
     // 如果存储不支持统计功能，返回默认值
@@ -541,9 +588,10 @@ export class DbManager {
   }
 
   async getUserPlayStat(userName: string): Promise<UserPlayStat> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).getUserPlayStat === 'function') {
-      return (this.storage as any).getUserPlayStat(userName);
+    if (typeof (storage as any).getUserPlayStat === 'function') {
+      return (storage as any).getUserPlayStat(userName);
     }
 
     // 如果存储不支持统计功能，返回默认值
@@ -559,9 +607,10 @@ export class DbManager {
   }
 
   async getContentStats(limit = 10): Promise<ContentStat[]> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).getContentStats === 'function') {
-      return (this.storage as any).getContentStats(limit);
+    if (typeof (storage as any).getContentStats === 'function') {
+      return (storage as any).getContentStats(limit);
     }
 
     // 如果存储不支持统计功能，返回空数组
@@ -574,9 +623,10 @@ export class DbManager {
     _id: string,
     _watchTime: number
   ): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).updatePlayStatistics === 'function') {
-      await (this.storage as any).updatePlayStatistics(_userName, _source, _id, _watchTime);
+    if (typeof (storage as any).updatePlayStatistics === 'function') {
+      await (storage as any).updatePlayStatistics(_userName, _source, _id, _watchTime);
     }
   }
 
@@ -586,17 +636,19 @@ export class DbManager {
     isFirstLogin?: boolean,
     loginMeta?: { ip?: string; location?: string; device?: string; browser?: string; os?: string }
   ): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).updateUserLoginStats === 'function') {
-      await (this.storage as any).updateUserLoginStats(userName, loginTime, isFirstLogin, loginMeta);
+    if (typeof (storage as any).updateUserLoginStats === 'function') {
+      await (storage as any).updateUserLoginStats(userName, loginTime, isFirstLogin, loginMeta);
     }
   }
 
   // 删除 V1 用户密码数据（用于 V1→V2 迁移）
   async deleteV1Password(userName: string): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).client !== 'undefined') {
-      await (this.storage as any).client.del(`u:${userName}:pwd`);
+    if (typeof (storage as any).client !== 'undefined') {
+      await (storage as any).client.del(`u:${userName}:pwd`);
     }
   }
 
@@ -608,46 +660,53 @@ export class DbManager {
 
   // 用户 Emby 配置相关方法
   async getUserEmbyConfig(userName: string): Promise<any | null> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).getUserEmbyConfig === 'function') {
-      return (this.storage as any).getUserEmbyConfig(userName);
+    if (typeof (storage as any).getUserEmbyConfig === 'function') {
+      return (storage as any).getUserEmbyConfig(userName);
     }
     return null;
   }
 
   async saveUserEmbyConfig(userName: string, config: any): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).saveUserEmbyConfig === 'function') {
-      await (this.storage as any).saveUserEmbyConfig(userName, config);
+    if (typeof (storage as any).saveUserEmbyConfig === 'function') {
+      await (storage as any).saveUserEmbyConfig(userName, config);
     }
   }
 
   async deleteUserEmbyConfig(userName: string): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    if (typeof (this.storage as any).deleteUserEmbyConfig === 'function') {
-      await (this.storage as any).deleteUserEmbyConfig(userName);
+    if (typeof (storage as any).deleteUserEmbyConfig === 'function') {
+      await (storage as any).deleteUserEmbyConfig(userName);
     }
   }
 
   // 崩溃日志相关方法
   async saveCrashLog(crashLog: any): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    await this.storage.saveCrashLog(crashLog);
+    await storage.saveCrashLog(crashLog);
   }
 
   async getCrashLogs(limit?: number): Promise<any[]> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    return this.storage.getCrashLogs(limit);
+    return storage.getCrashLogs(limit);
   }
 
   async deleteCrashLog(timestamp: string): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    await this.storage.deleteCrashLog(timestamp);
+    await storage.deleteCrashLog(timestamp);
   }
 
   async clearCrashLogs(): Promise<void> {
+    const storage = await this.ensureStorage();
     incrementDbQuery();
-    await this.storage.clearCrashLogs();
+    await storage.clearCrashLogs();
   }
 }
 
