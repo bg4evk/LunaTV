@@ -16,7 +16,6 @@ import { DEFAULT_USER_AGENT } from '@/lib/user-agent';
 import { validateProxyTargetUrl } from '@/lib/proxy-security';
 
 // 使用 Node.js Runtime 以获得更好的网络兼容性
-export const runtime = 'nodejs';
 
 // 完整的浏览器请求头伪装
 const BROWSER_HEADERS = {

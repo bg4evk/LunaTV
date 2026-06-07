@@ -190,7 +190,6 @@ async function fetchFromMobileAPI(id: string): Promise<{
   }
 }
 
-export const runtime = 'nodejs';
 
 // ============================================================================
 // 移动端API数据获取（预告片和高清图片）

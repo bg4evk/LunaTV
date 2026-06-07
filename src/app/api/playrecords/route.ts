@@ -8,7 +8,6 @@ import { db } from '@/lib/db';
 import { recordRequest, getDbQueryCount, resetDbQueryCount } from '@/lib/performance-monitor';
 import { PlayRecord } from '@/lib/types';
 
-export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();

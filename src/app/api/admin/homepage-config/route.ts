@@ -6,7 +6,6 @@ import { db } from '@/lib/db';
 import { clearConfigCache, getConfig } from '@/lib/config';
 import { getAuthInfoFromCookie } from '@/lib/auth';
 
-export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   const storageType = process.env.NEXT_PUBLIC_STORAGE_TYPE || 'localstorage';

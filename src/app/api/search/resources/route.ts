@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAvailableApiSites } from '@/lib/config';
 import { getAuthInfoFromCookie } from '@/lib/auth';
 
-export const runtime = 'nodejs';
 
 // OrionTV 兼容接口
 export async function GET(request: NextRequest) {

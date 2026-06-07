@@ -4,7 +4,6 @@ import { clearConfigCache, getConfig } from '@/lib/config';
 import { db } from '@/lib/db';
 import { refreshLiveChannels } from '@/lib/live';
 
-export const runtime = 'nodejs';
 
 // 导出直播源
 export async function GET(request: NextRequest) {

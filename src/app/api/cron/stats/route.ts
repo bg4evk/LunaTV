@@ -2,7 +2,6 @@
 
 import { NextResponse } from 'next/server';
 
-export const runtime = 'nodejs';
 
 // 导入 cron route 中的统计数据
 // 注意：这里我们需要从父模块导出 currentCronStats

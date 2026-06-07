@@ -3,7 +3,6 @@ import { NextResponse } from 'next/server';
 import { getTelegramToken, deleteTelegramToken } from '@/lib/telegram-tokens';
 import { db } from '@/lib/db';
 
-export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 // Telegram Webhook 端点

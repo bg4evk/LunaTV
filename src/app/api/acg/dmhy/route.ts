@@ -6,7 +6,6 @@ import { getAuthInfoFromCookie } from '@/lib/auth';
 import { db } from '@/lib/db';
 import { DEFAULT_USER_AGENT } from '@/lib/user-agent';
 
-export const runtime = 'nodejs';
 
 /**
  * POST /api/acg/dmhy

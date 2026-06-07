@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getConfig } from '@/lib/config';
 import { EmbyClient } from '@/lib/emby.client';
 
-export const runtime = 'nodejs';
 
 /**
  * Emby CMS 代理接口（动态路由）

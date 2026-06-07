@@ -4,7 +4,6 @@ import { NextResponse } from 'next/server';
 
 import { getConfig } from '@/lib/config';
 
-export const runtime = 'nodejs';
 
 // Logo 缓存管理
 const logoCache = new Map<string, { data: ArrayBuffer; contentType: string; timestamp: number; etag?: string }>();

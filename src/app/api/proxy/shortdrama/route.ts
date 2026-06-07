@@ -3,7 +3,6 @@
 import { NextResponse } from "next/server";
 import { DEFAULT_USER_AGENT } from '@/lib/user-agent';
 
-export const runtime = 'nodejs';
 
 import * as https from 'https';
 import * as http from 'http';

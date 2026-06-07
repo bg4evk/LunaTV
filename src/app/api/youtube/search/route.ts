@@ -4,7 +4,6 @@ import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getConfig, hasSpecialFeaturePermission } from '@/lib/config';
 import { db } from '@/lib/db';
 
-export const runtime = 'nodejs';
 
 // YouTube Data API v3 配置
 const YOUTUBE_API_BASE = 'https://www.googleapis.com/youtube/v3';

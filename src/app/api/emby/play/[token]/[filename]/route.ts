@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getConfig } from '@/lib/config';
 
-export const runtime = 'nodejs';
 
 /**
  * 获取 Emby 客户端

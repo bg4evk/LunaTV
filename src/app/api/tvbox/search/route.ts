@@ -7,7 +7,6 @@ import { searchFromApi } from '@/lib/downstream';
 import { rankSearchResults } from '@/lib/search-ranking';
 import { yellowWords } from '@/lib/yellow';
 
-export const runtime = 'nodejs';
 
 /**
  * TVBox 智能搜索代理端点

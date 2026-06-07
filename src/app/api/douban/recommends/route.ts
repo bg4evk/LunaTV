@@ -24,7 +24,6 @@ interface DoubanRecommendApiResponse {
   }>;
 }
 
-export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getConfig } from '@/lib/config';
 import { db } from '@/lib/db';
 
-export const runtime = 'nodejs';
 
 /**
  * 保存自定义 JAR URL 配置

@@ -1944,7 +1944,7 @@ export async function getSkipConfig(
 
       // 缓存未命中，从服务器获取
       const authInfo = getAuthInfoFromBrowserCookie();
-      if (!authInfo?.username) {
+      if (!authInfo?.username && !(STORAGE_TYPE === 'localstorage' && authInfo?.password)) {
         return null;
       }
 
@@ -2025,7 +2025,7 @@ export async function saveSkipConfig(
 
       // 异步同步到数据库
       const authInfo = getAuthInfoFromBrowserCookie();
-      if (!authInfo?.username) {
+      if (!authInfo?.username && !(STORAGE_TYPE === 'localstorage' && authInfo?.password)) {
         throw new Error('未登录');
       }
 
@@ -2158,7 +2158,7 @@ export async function deleteSkipConfig(
 
       // 异步同步到数据库
       const authInfo = getAuthInfoFromBrowserCookie();
-      if (!authInfo?.username) {
+      if (!authInfo?.username && !(STORAGE_TYPE === 'localstorage' && authInfo?.password)) {
         throw new Error('未登录');
       }
 

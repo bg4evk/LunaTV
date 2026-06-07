@@ -4,7 +4,6 @@ import { NextResponse } from "next/server";
 
 import { getConfig } from "@/lib/config";
 
-export const runtime = 'nodejs';
 
 // Key 缓存管理
 const keyCache = new Map<string, { data: ArrayBuffer; timestamp: number; etag?: string }>();

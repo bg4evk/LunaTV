@@ -62,7 +62,6 @@ async function tryFetchWithAntiCrawler(url: string): Promise<{ success: boolean;
   }
 }
 
-export const runtime = 'nodejs';
 
 export async function GET(request: Request) {
   const startTime = Date.now();

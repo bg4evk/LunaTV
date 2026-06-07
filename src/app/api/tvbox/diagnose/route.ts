@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GET as getTVBoxConfig } from '../route';
 import { DEFAULT_USER_AGENT } from '@/lib/user-agent';
 
-export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 function getBaseUrl(req: NextRequest): string {

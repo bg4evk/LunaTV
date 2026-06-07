@@ -4,7 +4,6 @@ import { getAuthInfoFromCookie } from '@/lib/auth';
 import { clearConfigCache, getConfig } from '@/lib/config';
 import { db } from '@/lib/db';
 
-export const runtime = 'nodejs';
 
 // 生成随机 Token
 function generateToken(length = 32): string {

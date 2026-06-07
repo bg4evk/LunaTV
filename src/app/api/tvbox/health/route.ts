@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { DEFAULT_USER_AGENT } from '@/lib/user-agent';
 
-export const runtime = 'nodejs';
 
 // Spider jar健康检查端点
 export async function GET(req: NextRequest) {

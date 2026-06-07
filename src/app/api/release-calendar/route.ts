@@ -6,7 +6,6 @@ import { getReleaseCalendar, getFilters } from '@/lib/release-calendar-scraper';
 import { ReleaseCalendarResult } from '@/lib/types';
 import { CalendarCacheManager } from '@/lib/calendar-cache';
 
-export const runtime = 'nodejs';
 
 // 🔄 缓存管理已迁移到数据库（CalendarCacheManager）
 // 移除内存缓存，使用数据库缓存实现全局共享

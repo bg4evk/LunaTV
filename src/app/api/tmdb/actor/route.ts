@@ -6,7 +6,6 @@ import { db } from '@/lib/db';
 
 const TMDB_CACHE_TIME = 6 * 60 * 60; // 6小时
 
-export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);

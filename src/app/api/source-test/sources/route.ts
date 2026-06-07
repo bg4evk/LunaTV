@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAdminRoleFromRequest } from '@/lib/admin-auth';
 import { getConfig } from '@/lib/config';
 
-export const runtime = 'nodejs';
 
 // 返回所有源（包含禁用状态），仅暴露必要字段
 export async function GET(request: NextRequest) {

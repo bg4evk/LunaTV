@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 
-export const runtime = 'nodejs';
 
 // 客户端日志收集 API
 export async function POST(request: Request) {

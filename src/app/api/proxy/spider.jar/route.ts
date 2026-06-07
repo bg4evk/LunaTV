@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSpiderJar } from '@/lib/spiderJar';
 
-export const runtime = 'nodejs';
 
 // Spider JAR 本地代理端点 - 使用统一的 jar 获取逻辑
 // 支持通过查询参数指定自定义 jar URL

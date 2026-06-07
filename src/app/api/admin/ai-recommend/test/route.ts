@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getConfig } from '@/lib/config';
 
-export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   const authInfo = getAuthInfoFromCookie(request);

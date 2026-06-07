@@ -21,7 +21,6 @@ interface DoubanCategoryApiResponse {
   }>;
 }
 
-export const runtime = 'nodejs';
 
 export async function GET(request: Request) {
   const startTime = Date.now();

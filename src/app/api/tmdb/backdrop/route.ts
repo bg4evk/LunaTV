@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getConfig } from '@/lib/config';
 import { db } from '@/lib/db';
 
-export const runtime = 'nodejs';
 
 const CACHE_TTL = 86400; // 24小时
 

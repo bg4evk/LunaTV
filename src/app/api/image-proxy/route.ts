@@ -3,7 +3,6 @@ import { DEFAULT_USER_AGENT } from '@/lib/user-agent';
 import { validateProxyTargetUrl } from '@/lib/proxy-security';
 import * as https from 'https';
 
-export const runtime = 'nodejs';
 
 // https agent with rejectUnauthorized: false for expired-cert image CDNs
 const insecureHttpsAgent = new https.Agent({ rejectUnauthorized: false });

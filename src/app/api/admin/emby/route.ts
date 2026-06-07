@@ -8,7 +8,6 @@ import { db } from '@/lib/db';
 import { EmbyClient } from '@/lib/emby.client';
 import { clearEmbyCache } from '@/lib/emby-cache';
 
-export const runtime = 'nodejs';
 
 /**
  * POST /api/admin/emby

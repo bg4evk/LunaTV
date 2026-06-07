@@ -10,7 +10,6 @@ import { PlayRecord } from '@/lib/types';
 // 导出类型供页面组件使用
 export type { PlayStatsResult } from '@/lib/types';
 
-export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   const storageType = process.env.NEXT_PUBLIC_STORAGE_TYPE || 'localstorage';

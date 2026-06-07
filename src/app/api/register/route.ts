@@ -5,7 +5,6 @@ import { clearConfigCache, getConfig } from '@/lib/config';
 import { db } from '@/lib/db';
 import { useInviteCode, validateInviteCode } from '@/lib/invite-code';
 
-export const runtime = 'nodejs';
 
 // 读取存储类型环境变量，默认 localstorage
 const STORAGE_TYPE =

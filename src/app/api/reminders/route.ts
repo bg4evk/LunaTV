@@ -8,7 +8,6 @@ import { db } from '@/lib/db';
 import { recordRequest, getDbQueryCount, resetDbQueryCount } from '@/lib/performance-monitor';
 import { Reminder } from '@/lib/types';
 
-export const runtime = 'nodejs';
 
 /**
  * GET /api/reminders

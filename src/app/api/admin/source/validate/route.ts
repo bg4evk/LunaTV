@@ -6,7 +6,6 @@ import { getAuthInfoFromCookie } from '@/lib/auth';
 import { getConfig, getAvailableApiSites } from '@/lib/config';
 import { API_CONFIG } from '@/lib/config';
 
-export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   console.log('[Source Validate] ========== API Route Called ==========');

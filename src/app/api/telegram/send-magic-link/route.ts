@@ -4,7 +4,6 @@ import crypto from 'crypto';
 import { db } from '@/lib/db';
 import { setTelegramToken } from '@/lib/telegram-tokens';
 
-export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {

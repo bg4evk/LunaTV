@@ -8,7 +8,6 @@ import { getAuthInfoFromCookie } from '@/lib/auth';
 import { clearConfigCache, getConfig } from '@/lib/config';
 import { db } from '@/lib/db';
 
-export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   const storageType = process.env.NEXT_PUBLIC_STORAGE_TYPE || 'localstorage';

@@ -5,7 +5,6 @@ import { getAvailableApiSites, getCacheTime } from '@/lib/config';
 import { getDetailFromApi, searchFromApi } from '@/lib/downstream';
 import { recordRequest, getDbQueryCount, resetDbQueryCount } from '@/lib/performance-monitor';
 
-export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();

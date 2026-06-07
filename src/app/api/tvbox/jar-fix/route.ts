@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getUserRegion } from '@/lib/networkDetection';
 import { DEFAULT_USER_AGENT } from '@/lib/user-agent';
 
-export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 /**

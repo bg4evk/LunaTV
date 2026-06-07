@@ -89,7 +89,6 @@ function parseDoubanSearchHtml(html: string): Array<{
   return results;
 }
 
-export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);

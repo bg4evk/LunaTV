@@ -6,7 +6,6 @@ import { recordRequest, getDbQueryCount, resetDbQueryCount } from '@/lib/perform
 import { EpisodeSkipConfig } from '@/lib/types';
 
 // 配置 Node.js Runtime
-export const runtime = 'nodejs';
 
 /** 从 key 和 identityKey 解析出 DB 层需要的 source 和 id */
 function resolveSkipKey(

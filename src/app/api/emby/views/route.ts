@@ -6,7 +6,6 @@ import { getCachedEmbyViews, setCachedEmbyViews } from '@/lib/emby-cache';
 import { embyManager } from '@/lib/emby-manager';
 import { getAuthInfoFromCookie } from '@/lib/auth';
 
-export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   try {

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { getConfig } from '@/lib/config';
 
-export const runtime = 'nodejs';
 
 /**
  * 代理状态检测接口

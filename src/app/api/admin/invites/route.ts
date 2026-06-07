@@ -10,7 +10,6 @@ import {
   toggleInviteCode,
 } from '@/lib/invite-code';
 
-export const runtime = 'nodejs';
 
 /**
  * GET /api/admin/invites

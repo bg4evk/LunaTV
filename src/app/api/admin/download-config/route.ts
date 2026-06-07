@@ -6,7 +6,6 @@ import { ensureAdmin } from '@/lib/admin-auth';
 import { clearConfigCache, getConfig } from '@/lib/config';
 import { db } from '@/lib/db';
 
-export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   // 权限检查

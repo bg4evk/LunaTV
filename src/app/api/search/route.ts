@@ -9,7 +9,6 @@ import { generateSearchVariants } from '@/lib/downstream';
 import { recordRequest, getDbQueryCount, resetDbQueryCount } from '@/lib/performance-monitor';
 import { yellowWords } from '@/lib/yellow';
 
-export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();

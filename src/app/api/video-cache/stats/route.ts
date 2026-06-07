@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCacheStats } from '@/lib/video-cache';
 
-export const runtime = 'nodejs';
 
 /**
  * 获取视频缓存统计信息

@@ -5,7 +5,6 @@ import { NextResponse } from 'next/server';
 import { getConfig } from '@/lib/config';
 import { validateProxyTargetUrl } from '@/lib/proxy-security';
 
-export const runtime = 'nodejs';
 
 function withCorsHeaders(headers: Headers) {
   headers.set('Access-Control-Allow-Origin', '*');

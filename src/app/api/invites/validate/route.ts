@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import { validateInviteCode } from '@/lib/invite-code';
 
-export const runtime = 'nodejs';
 
 /**
  * POST /api/invites/validate

@@ -4,7 +4,6 @@ import { getConfig } from '@/lib/config';
 import { encWbi, getBuvid3, getBilibiliHeaders } from '@/lib/bilibili-wbi';
 import { db } from '@/lib/db';
 
-export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   const authInfo = getAuthInfoFromCookie(request);

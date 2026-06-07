@@ -4,7 +4,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getConfig } from '@/lib/config';
 import { db } from '@/lib/db';
 
-export const runtime = 'nodejs';
 
 // 生成签名
 async function generateSignature(

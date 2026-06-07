@@ -7,7 +7,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getConfig } from '@/lib/config';
 import { parseEpgWithDebug, parseM3U } from '@/lib/live';
 
-export const runtime = 'nodejs';
 
 const defaultUA = 'AptvPlayer/1.4.10';
 

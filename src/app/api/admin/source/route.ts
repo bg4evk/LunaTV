@@ -6,7 +6,6 @@ import { getAuthInfoFromCookie } from '@/lib/auth';
 import { clearConfigCache, getConfig } from '@/lib/config';
 import { db } from '@/lib/db';
 
-export const runtime = 'nodejs';
 
 // 支持的操作类型
 type Action = 'add' | 'update' | 'disable' | 'enable' | 'delete' | 'sort' | 'batch_disable' | 'batch_enable' | 'batch_delete' | 'update_adult' | 'batch_mark_adult' | 'batch_unmark_adult' | 'batch_mark_shortdrama' | 'batch_mark_vod' | 'update_weight';

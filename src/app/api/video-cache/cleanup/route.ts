@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { cleanupExpiredCache, getCacheStats } from '@/lib/video-cache';
 
-export const runtime = 'nodejs';
 
 /**
  * 清理过期的视频缓存

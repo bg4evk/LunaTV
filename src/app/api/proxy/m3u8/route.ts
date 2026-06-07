@@ -5,7 +5,6 @@ import { NextResponse } from "next/server";
 import { getConfig } from "@/lib/config";
 import { getBaseUrl, resolveUrl } from "@/lib/live";
 
-export const runtime = 'nodejs';
 
 // 连接池管理
 import * as https from 'https';

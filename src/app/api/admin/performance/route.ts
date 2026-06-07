@@ -11,7 +11,6 @@ import { initFetchInterceptor } from '@/lib/fetch-interceptor';
 import { getExternalTrafficStats } from '@/lib/external-traffic-monitor';
 import { getConfig } from '@/lib/config';
 
-export const runtime = 'nodejs';
 
 // 启动自动数据收集
 startAutoCollection();

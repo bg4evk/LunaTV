@@ -14,7 +14,6 @@ import { cleanupExpiredCache, validateCacheSize } from '@/lib/video-cache';
 import { cronCache } from '@/lib/server-cache';
 import { DEFAULT_CRON_CONFIG } from '@/lib/admin.types';
 
-export const runtime = 'nodejs';
 
 // 添加全局锁避免并发执行
 let isRunning = false;

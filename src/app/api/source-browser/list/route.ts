@@ -4,7 +4,6 @@ import { getAuthInfoFromCookie } from '@/lib/auth';
 import { API_CONFIG, getAvailableApiSites } from '@/lib/config';
 import { recordRequest, getDbQueryCount, resetDbQueryCount } from '@/lib/performance-monitor';
 
-export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   const startTime = Date.now();

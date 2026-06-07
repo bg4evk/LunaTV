@@ -2,7 +2,6 @@
 import { NextResponse } from 'next/server';
 import { getConfig } from '@/lib/config';
 
-export const runtime = 'nodejs';
 
 const DEFAULT_DANMU_API_URL = 'https://smonedanmu.vercel.app';
 const DEFAULT_DANMU_API_TOKEN = 'smonetv';

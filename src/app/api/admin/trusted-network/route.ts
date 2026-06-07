@@ -5,7 +5,6 @@ import { getAuthInfoFromCookie } from '@/lib/auth';
 import { clearConfigCache, getConfig } from '@/lib/config';
 import { db } from '@/lib/db';
 
-export const runtime = 'nodejs';
 
 /**
  * GET - 获取当前信任网络配置

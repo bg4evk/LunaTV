@@ -3,7 +3,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { EmbyClient } from '@/lib/emby.client';
 
-export const runtime = 'nodejs';
 
 /**
  * 测试 Emby 连接

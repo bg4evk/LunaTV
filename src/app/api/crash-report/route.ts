@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { CrashLog } from '@/lib/types';
 
-export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
